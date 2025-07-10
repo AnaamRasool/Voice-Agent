@@ -4,7 +4,8 @@ import whisper
 from TTS.api import TTS
 
 # ---- CONFIG ----
-OPENAI_API_KEY = "YOUR_OPENAI_API_KEY"
+# OPENAI_API_KEY = "YOUR_OPENAI_API_KEY"
+OPENAI_API_KEY = "AIzaSyBqRzDlNjJcsfxlg9QPo9ISWm5SsJHzPZY"
 openai.api_key = OPENAI_API_KEY
 
 # Load Whisper model
