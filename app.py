@@ -4,8 +4,7 @@ from TTS.api import TTS
 import requests
 
 # ---- CONFIG ----
-# GEMINI_API_KEY = "YOUR_GOOGLE_GEMINI_API_KEY"
-GEMINI_API_KEY = "AIzaSyBqRzDlNjJcsfxlg9QPo9ISWm5SsJHzPZY"
+GEMINI_API_KEY = "YOUR_GOOGLE_GEMINI_API_KEY"
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + GEMINI_API_KEY
 
 # Load Whisper model
