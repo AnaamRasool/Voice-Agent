@@ -1,12 +1,12 @@
 import gradio as gr
-import openai
 import whisper
 from TTS.api import TTS
+import requests
 
 # ---- CONFIG ----
-# OPENAI_API_KEY = "YOUR_OPENAI_API_KEY"
-OPENAI_API_KEY = "AIzaSyBqRzDlNjJcsfxlg9QPo9ISWm5SsJHzPZY"
-openai.api_key = OPENAI_API_KEY
+# GEMINI_API_KEY = "YOUR_GOOGLE_GEMINI_API_KEY"
+GEMINI_API_KEY = "AIzaSyBqRzDlNjJcsfxlg9QPo9ISWm5SsJHzPZY"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + GEMINI_API_KEY
 
 # Load Whisper model
 whisper_model = whisper.load_model("base")
@@ -21,15 +21,25 @@ def voice_to_voice(audio):
     result = whisper_model.transcribe(audio)
     text_input = result["text"]
     
-    # 2. Generate LLM reply
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a friendly assistant."},
-            {"role": "user", "content": text_input}
+    # 2. Generate LLM reply from Gemini
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {
+                        "text": text_input
+                    }
+                ]
+            }
         ]
-    )
-    reply_text = response.choices[0].message.content
+    }
+
+    response = requests.post(GEMINI_URL, json=payload)
+    gemini_response = response.json()
+    try:
+        reply_text = gemini_response['candidates'][0]['content']['parts'][0]['text']
+    except Exception as e:
+        reply_text = f"Error: {e} \nRaw response: {gemini_response}"
 
     # 3. Convert reply to speech
     tts.tts_to_file(text=reply_text, file_path="output.wav")
@@ -41,7 +51,7 @@ def voice_to_voice(audio):
 interface = gr.Interface(
     fn=voice_to_voice,
     inputs=gr.Audio(source="microphone", type="filepath"),
-    outputs=[gr.Textbox(label="Transcription + Reply"), gr.Audio(label="AI Voice Reply")]
+    outputs=[gr.Textbox(label="Transcription + Gemini Reply"), gr.Audio(label="AI Voice Reply")]
 )
 
 interface.launch()
